@@ -12,7 +12,7 @@ describe("Driver API", () => {
   const testVideoData: VideoInputDto = {
     title: "Happiness",
     author: "Valentin",
-    availableResolutions: [AvailableResolutions.P144],
+    availableResolutions: [AvailableResolutions.P2160],
   };
 
   beforeAll(async () => {
@@ -21,9 +21,8 @@ describe("Driver API", () => {
 
   it("should create video; POST /videos", async () => {
     const newVideo: VideoInputDto = {
+      ...testVideoData,
       title: "Earth",
-      author: "Greenwitch",
-      availableResolutions: [AvailableResolutions.P1440],
     };
 
     await request(app)
