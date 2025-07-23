@@ -4,6 +4,7 @@ import { setupApp } from "../../../src/setup-app";
 import { VideoInputDto } from "../../../src/videos/dto/video.input-dto";
 import { HttpStatus } from "../../../src/core/types/http-statuses";
 import { AvailableResolutions } from "../../../src/videos/types/video";
+import { VideoUpdateDto } from "../../../src/videos/dto/video.update-dto";
 
 describe("Driver API", () => {
   const app = express();
@@ -13,6 +14,14 @@ describe("Driver API", () => {
     title: "Happiness",
     author: "Valentin",
     availableResolutions: [AvailableResolutions.P2160],
+  };
+
+  const testVideoUpdateData: VideoUpdateDto = {
+    ...testVideoData,
+
+    canBeDownloaded: true,
+    minAgeRestriction: 18,
+    publicationDate: "2025-07-23T00:17:56.222Z",
   };
 
   beforeAll(async () => {
@@ -64,6 +73,55 @@ describe("Driver API", () => {
       ...createResponse.body,
       id: expect.any(Number),
       createdAt: expect.any(String),
+    });
+  });
+
+  it("should update video; PUT /videos/:id", async () => {
+    //создаем
+    const createResponse = await request(app)
+      .post("/videos")
+      .send({ ...testVideoUpdateData })
+      .expect(HttpStatus.Created);
+
+    //  console.log("111111111111", createResponse.body);
+
+    //меняем
+    await request(app)
+      .put(`/videos/${createResponse.body.id}`)
+      .send({
+        title: "fan",
+        author: "john",
+        availableResolutions: [
+          AvailableResolutions.P720,
+          AvailableResolutions.P480,
+        ],
+
+        canBeDownloaded: false,
+        minAgeRestriction: 10,
+        publicationDate: "2024-07-23T00:17:56.222Z",
+      })
+      .expect(HttpStatus.NoContent);
+
+    //извлекаем
+    const getResponse = await request(app)
+      .get(`/videos/${createResponse.body.id}`)
+      .expect(HttpStatus.Ok);
+
+    //смотрим что изменилось
+    expect(getResponse.body).toEqual({
+      id: expect.any(Number),
+      createdAt: expect.any(String),
+
+      title: "fan",
+      author: "john",
+      availableResolutions: [
+        AvailableResolutions.P720,
+        AvailableResolutions.P480,
+      ],
+
+      canBeDownloaded: false,
+      minAgeRestriction: 10,
+      publicationDate: "2024-07-23T00:17:56.222Z",
     });
   });
 });
