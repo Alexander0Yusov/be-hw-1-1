@@ -64,8 +64,6 @@ videosRouter
       (item) => item.id === +req.params.id
     );
 
-    //  console.log(22222, db.videos[indexVideo]);
-
     if (indexVideo === -1) {
       res.sendStatus(HttpStatus.NotFound);
       return;
@@ -73,23 +71,27 @@ videosRouter
 
     const videoForUpdate = db.videos[indexVideo];
 
-    const {
-      title,
-      author,
-      availableResolutions,
-      canBeDownloaded,
-      minAgeRestriction,
-      publicationDate,
-    } = req.body;
+    videoForUpdate.title = req.body.title;
+    videoForUpdate.author = req.body.author;
+    videoForUpdate.availableResolutions = req.body.availableResolutions;
+    videoForUpdate.canBeDownloaded = req.body.canBeDownloaded;
+    videoForUpdate.minAgeRestriction = req.body.minAgeRestriction;
+    videoForUpdate.publicationDate = req.body.publicationDate;
 
-    videoForUpdate.title = title;
-    videoForUpdate.author = author;
-    videoForUpdate.availableResolutions = availableResolutions;
-    videoForUpdate.canBeDownloaded = canBeDownloaded;
-    videoForUpdate.minAgeRestriction = minAgeRestriction;
-    videoForUpdate.publicationDate = publicationDate;
+    res.sendStatus(HttpStatus.NoContent);
+  })
+  .delete("/:id", (req: Request, res: Response) => {
+    const index = db.videos.findIndex((v) => v.id === +req.params.id);
 
-    //  console.log(333333, videoForUpdate);
+    if (index === -1) {
+      res
+        .status(HttpStatus.NotFound)
+        .send(
+          createErrorMessages([{ field: "id", message: "Video not found" }])
+        );
+      return;
+    }
 
+    db.videos.splice(index, 1);
     res.sendStatus(HttpStatus.NoContent);
   });
